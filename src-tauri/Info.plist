@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>talk-to-type listens to your voice while you hold the dictation hotkey, then transcribes it locally on your device.</string>
+
+    <!--
+      AppleEvents is the formal entitlement, but for keystroke synthesis
+      via enigo we rely on Accessibility, which the user grants via
+      System Settings → Privacy & Security → Accessibility. This string
+      appears in the consent prompt the OS shows on first attempt.
+    -->
+    <key>NSAppleEventsUsageDescription</key>
+    <string>talk-to-type pastes your transcription into the focused app by simulating Cmd+V.</string>
+
+    <!--
+      Input Monitoring is required for the global hold-to-talk hotkey to
+      work when the app is not focused. macOS shows a consent dialog the
+      first time we install the global event monitor.
+    -->
+    <key>NSInputMonitoringUsageDescription</key>
+    <string>talk-to-type needs to detect when you hold the dictation hotkey, even when other apps are focused.</string>
+
+    <key>LSUIElement</key>
+    <false/>
+
+    <key>LSMinimumSystemVersion</key>
+    <string>11.0</string>
+</dict>
+</plist>

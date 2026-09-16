@@ -1,0 +1,9 @@
+README.md
+main.py
+pyproject.toml
+talk_to_type_sidecar.egg-info/PKG-INFO
+talk_to_type_sidecar.egg-info/SOURCES.txt
+talk_to_type_sidecar.egg-info/dependency_links.txt
+talk_to_type_sidecar.egg-info/entry_points.txt
+talk_to_type_sidecar.egg-info/requires.txt
+talk_to_type_sidecar.egg-info/top_level.txt

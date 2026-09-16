@@ -1,0 +1,128 @@
+[package]
+name = "talk-to-type"
+version = "0.1.0"
+description = "Privacy-first local voice dictation"
+authors = ["Hunter <hunter@underscore-software.com>"]
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "talk_to_type_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# --- Tauri core + plugins -------------------------------------------------
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri-plugin-autostart = "2"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-os = "2"
+tauri-plugin-process = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-store = "2"
+
+# --- Serde / async --------------------------------------------------------
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# --- Errors / logging -----------------------------------------------------
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+tracing-appender = "0.2"
+
+# --- Audio ----------------------------------------------------------------
+cpal = "0.15"
+rubato = "0.16"  # sample-rate conversion to 16 kHz
+hound = "3.5"    # WAV writer for debug dumps
+crossbeam-channel = "0.5"
+parking_lot = "0.12"
+
+# --- VAD ------------------------------------------------------------------
+# Silero VAD via ONNX Runtime in Rust. Replaces unmaintained webrtc-vad.
+# Optional because it pulls a prebuilt ONNX Runtime binary that requires
+# the MSVC 14.30+ runtime symbols (VS 2022 BuildTools or newer).
+voice_activity_detector = { version = "0.2", optional = true }
+
+# --- whisper.cpp ----------------------------------------------------------
+# Optional because building it requires libclang on the build host
+# (bindgen generates FFI from whisper.cpp's C++ headers). Users who only
+# want the sidecar backends can `cargo build --no-default-features`.
+whisper-rs = { version = "0.13", default-features = false, optional = true }
+
+# --- HTTP / HF Hub --------------------------------------------------------
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+url = "2"
+
+# --- Auto-paste -----------------------------------------------------------
+enigo = "0.3"
+
+# --- Storage --------------------------------------------------------------
+rusqlite = { version = "0.32", features = ["bundled"] }
+dirs = "5"
+
+# --- Misc -----------------------------------------------------------------
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+once_cell = "1"
+bytes = "1"
+sha2 = "0.10"
+hex = "0.4"
+
+# Platform-specific
+[target.'cfg(target_os = "macos")'.dependencies]
+cocoa = "0.26"
+objc = "0.2"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.58", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Input_KeyboardAndMouse",
+] }
+
+[features]
+# Optional features. NONE is default — both `whisper-cpp` (needs libclang
+# at build time) and `vad` (needs the MSVC 14.30+ runtime to link the
+# bundled ONNX Runtime) require optional toolchain pieces, so opting in
+# is explicit. A plain `cargo build` / `tauri dev` works on any machine
+# with rustc + Tauri prereqs and gives a working app minus those features.
+#
+# Pick what your environment supports:
+#   tauri dev -- --features whisper-cpp           # in-proc whisper.cpp only
+#   tauri dev -- --features vad                   # silence trim only
+#   tauri dev -- --features whisper-cpp,vad       # full
+default = []
+# Serve the embedded production frontend instead of connecting to the Vite
+# dev server. `tauri build` enables this automatically; a manual release
+# build MUST pass it too (`cargo build --release --features custom-protocol`)
+# or the exe ships pointing at http://localhost:1420 and the window shows
+# ERR_CONNECTION_REFUSED.
+custom-protocol = ["tauri/custom-protocol"]
+whisper-cpp = ["dep:whisper-rs"]
+vad = ["dep:voice_activity_detector"]
+
+# Whisper.cpp acceleration features. Pick at build time per platform.
+metal = ["whisper-cpp", "whisper-rs/metal"]
+cuda = ["whisper-cpp", "whisper-rs/cuda"]
+vulkan = ["whisper-cpp", "whisper-rs/vulkan"]
+coreml = ["whisper-cpp", "whisper-rs/coreml"]
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.dev]
+opt-level = 1   # cpal/whisper are unusably slow at -O0

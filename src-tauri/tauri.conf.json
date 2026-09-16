@@ -1,0 +1,84 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "talk-to-type",
+  "version": "0.1.0",
+  "identifier": "software.underscore.talktotype",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "title": "talk-to-type",
+        "width": 920,
+        "height": 640,
+        "minWidth": 720,
+        "minHeight": 480,
+        "resizable": true,
+        "fullscreen": false,
+        "visible": true,
+        "decorations": true,
+        "transparent": false,
+        "center": true,
+        "url": "index.html"
+      },
+      {
+        "label": "overlay",
+        "title": "talk-to-type-overlay",
+        "width": 220,
+        "height": 64,
+        "x": 0,
+        "y": 0,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "shadow": false,
+        "focus": false,
+        "visible": false,
+        "url": "index.html#/overlay"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' data: https://huggingface.co https://cdn-lfs.huggingface.co; connect-src 'self' ipc: http://ipc.localhost https://huggingface.co https://cdn-lfs.huggingface.co http://localhost:11434; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg", "nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "Productivity",
+    "shortDescription": "Privacy-first local voice dictation",
+    "longDescription": "Hold a global hotkey, speak, release — your words are transcribed locally with whisper.cpp, faster-whisper, or any Hugging Face ASR model, then auto-pasted into the focused app. No audio ever leaves your device.",
+    "macOS": {
+      "frameworks": [],
+      "minimumSystemVersion": "11.0",
+      "exceptionDomain": "",
+      "entitlements": "entitlements.plist",
+      "providerShortName": null
+    },
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "installMode": "perMachine"
+      }
+    }
+  },
+  "plugins": {
+    "shell": {
+      "open": true
+    }
+  }
+}

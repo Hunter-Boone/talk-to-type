@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light mode native-ish palette. */
+  --surface: 248 248 248;
+  --surface-subtle: 240 240 240;
+  --surface-strong: 230 230 230;
+  --ink: 28 28 30;
+  --ink-muted: 110 110 115;
+  --accent: 10 132 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: 28 28 30;
+    --surface-subtle: 38 38 41;
+    --surface-strong: 50 50 55;
+    --ink: 245 245 247;
+    --ink-muted: 165 165 175;
+    --accent: 10 132 255;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* Overlay window — transparent by config, but keep CSS in sync. */
+body.overlay-window {
+  background: transparent;
+}
+
+button {
+  font: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--surface-strong));
+  border-radius: 5px;
+}

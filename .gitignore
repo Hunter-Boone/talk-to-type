@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+src-tauri/target/
+src-tauri/gen/schemas/
+# Sidecar
+sidecar/.venv/
+sidecar/dist/
+sidecar/build/
+sidecar/__pycache__/
+sidecar/**/__pycache__/
+sidecar/*.spec
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+# OS
+.DS_Store
+Thumbs.db
+# Local secrets
+.env
+.env.local
+# Models (downloaded at runtime — never commit)
+**/models/*.bin
+**/models/*.gguf
+**/models/*.onnx
+# common
+@eaDir/
+__pycache__/
+*.pyc
+.venv/
+venv/
+# project
+.claude/settings.local.json
+*.egg-info/

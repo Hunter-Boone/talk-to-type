@@ -1,0 +1,46 @@
+[project]
+name = "talk_to_type_sidecar"
+version = "0.1.0"
+description = "Python sidecar for talk-to-type — runs faster-whisper and HF transformers ASR"
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+license = { text = "MIT" }
+
+# Heavy ML deps are listed here so that `uv sync` (or `pip install`) sets up
+# a complete venv. The PyInstaller build picks the same set up automatically.
+dependencies = [
+    "numpy>=1.26",
+    # faster-whisper — CTranslate2 backend.
+    "faster-whisper>=1.1.0",
+    "ctranslate2>=4.5.0",
+    # transformers + a Whisper-compatible pipeline. 5.4 is the floor
+    # for Cohere Transcribe (CohereLabs/cohere-transcribe-03-2026)
+    # native support; older versions silently produce token salad.
+    "transformers>=5.4.0",
+    "accelerate>=1.1.0",
+    # Torch is platform-specific; users typically want the CUDA wheel on
+    # Windows + GPU and the CPU wheel everywhere else. We pin to >=2.4 here
+    # and let the install env decide. See README for guidance.
+    "torch>=2.4",
+    # Audio I/O + resampling. The built-in `wave` module would cover our
+    # 16-bit/16-kHz case, but custom_code transformers ASR repos (Cohere,
+    # Parakeet, etc.) import librosa/soundfile in their feature-extractor
+    # modules and refuse to load otherwise. Cheap and broadly useful.
+    "librosa>=0.10",
+    "soundfile>=0.12",
+    # sentencepiece is required by many tokenizers (Whisper, Seamless,
+    # Cohere ASR, etc.). Pulled in even if torch already satisfies it.
+    "sentencepiece>=0.2",
+]
+
+[project.optional-dependencies]
+build = [
+    "pyinstaller>=6.10",
+]
+
+[project.scripts]
+talk_to_type_sidecar = "main:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
