@@ -37,6 +37,14 @@ pub fn run() {
     info!("starting talk-to-type v{}", env!("CARGO_PKG_VERSION"));
 
     tauri::Builder::default()
+        // Must be the first plugin. A second copy (Start menu while the
+        // login copy sits in the tray) would otherwise fight over the
+        // global hotkey: whichever registered second fails, and once the
+        // first exits nobody owns it and dictation silently stops.
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            info!("second launch; focusing the running instance");
+            tray::show_main(app);
+        }))
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
@@ -92,6 +100,17 @@ pub fn run() {
                 // even if the window stays hidden forever.
                 if let Err(e) = commands::sync_hotkeys(&handle_for_init, &state).await {
                     tracing::warn!(error = %e, "startup hotkey registration failed");
+                    // Without its hotkey the app is inert, and the log is
+                    // the last place anyone looks — tell the user directly.
+                    use tauri_plugin_notification::NotificationExt;
+                    let _ = handle_for_init
+                        .notification()
+                        .builder()
+                        .title("talk-to-type: dictation hotkey not registered")
+                        .body(format!(
+                            "{e}\nAnother app may own it. Choose a different hotkey in Settings → General."
+                        ))
+                        .show();
                 }
 
                 // Make the OS launch-at-login registration match the saved

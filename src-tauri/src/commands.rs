@@ -246,11 +246,18 @@ pub async fn register_hotkey(
 /// Enable/disable the OS launch-at-login registration to match the
 /// setting. Errors are logged, not fatal — a failed registry write
 /// shouldn't take the settings save down with it.
+///
+/// When enabled we re-register on every call rather than trusting
+/// `is_enabled()`: on Windows that only checks the Run value *exists*,
+/// not which exe it points at. After a reinstall to a new path (or
+/// switching between a dev build and an installed one) login kept
+/// launching the old binary. `enable()` rewrites the entry with the
+/// current exe, so it's a cheap idempotent repair.
 pub(crate) fn sync_autostart(app: &AppHandle, want: bool) {
     use tauri_plugin_autostart::ManagerExt;
     let autolaunch = app.autolaunch();
     let currently = autolaunch.is_enabled().unwrap_or(false);
-    if want == currently {
+    if !want && !currently {
         return;
     }
     let result = if want {
@@ -259,7 +266,10 @@ pub(crate) fn sync_autostart(app: &AppHandle, want: bool) {
         autolaunch.disable()
     };
     match result {
-        Ok(()) => info!(enabled = want, "launch-at-login registration updated"),
+        Ok(()) if want != currently => {
+            info!(enabled = want, "launch-at-login registration updated")
+        }
+        Ok(()) => {}
         Err(e) => warn!(error = %e, enabled = want, "failed to update launch-at-login"),
     }
 }

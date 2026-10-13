@@ -192,7 +192,12 @@ mid-session sidecar crash costs one model reload, not an app restart.
   React bundle but at `#/overlay`, where `App.tsx` short-circuits the
   main shell and renders only the overlay component. Click-through is
   applied via `core:window:allow-set-ignore-cursor-events` permission +
-  `set_ignore_cursor_events(true)` at show time.
+  `set_ignore_cursor_events(true)` at show time. Each show also moves it
+  to the bottom-centre of the monitor under the mouse (`overlay.rs`); the
+  config's `x`/`y` are only the pre-first-show placeholder.
+- Only one instance runs (`tauri-plugin-single-instance`); a second launch
+  focuses the existing main window. Two copies would fight over the global
+  hotkey and the loser's registration fails.
 
 ## Storage layout
 

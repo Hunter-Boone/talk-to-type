@@ -69,9 +69,9 @@ pub fn install(app: &AppHandle) -> tauri::Result<()> {
 }
 
 /// Bring the main window back from a hidden / minimised state and
-/// give it focus. Used by both the tray menu's Show item and the
-/// left-click-on-icon handler.
-fn show_main(app: &AppHandle) {
+/// give it focus. Used by the tray menu's Show item, the
+/// left-click-on-icon handler, and a second launch of the app.
+pub(crate) fn show_main(app: &AppHandle) {
     let Some(window) = app.get_webview_window("main") else {
         warn!("tray: main window not found");
         return;
